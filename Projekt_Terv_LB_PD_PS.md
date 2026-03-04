@@ -1,5 +1,9 @@
 # Projekt terv - Lossó Bálint, Pásztor Dávid, Pintér Soma
 
+**Topológia**
+
+![](https://assets.digitalocean.com/articles/alligator/boo.svg "Topológia")
+
 **Címzési Táblázat**
 
 |Eszköz|Interface|Cím|Default Gateway|
