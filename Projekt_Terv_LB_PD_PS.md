@@ -2,7 +2,7 @@
 
 **Topológia**
 
-![](topolgia.webp "Topológia")
+![](topologia.webp "Topológia")
 
 **Címzési Táblázat**
 
