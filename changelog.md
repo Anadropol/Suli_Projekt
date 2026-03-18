@@ -3,7 +3,9 @@
 - SSH automatikus konfiguráció serialon keresztül, pythonnal
 - Konfiguráció betöltő script
     - ISP konfig befejezve
+
 <hr/>
+
 **2026.03.18**
 - Konfiguráció betöltő script kész (netmiko)
 - Monitoring weboldal elkezdve
