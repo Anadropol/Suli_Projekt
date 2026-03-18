@@ -68,7 +68,7 @@
 | UPC2 | eth0 | DHCP | DHCP |
 | UPC3 | eth0 | DHCP | DHCP |
 | IL | w0 | DHCP | DHCP |
-| UP | w0 | DHCP | DHCP |
+| US | w0 | DHCP | DHCP |
 
 **Telephelyek**
 - Központ
