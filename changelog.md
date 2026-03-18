@@ -2,4 +2,11 @@
 - Címzési tábla véglegesítése, javítása
 - SSH automatikus konfiguráció serialon keresztül, pythonnal
 - Konfiguráció betöltő script
-    - ISP konfig elkezdve
+    - ISP konfig befejezve
+<br>
+**2026.03.18**
+- Konfiguráció betöltő script kész (netmiko)
+- Monitoring weboldal elkezdve
+  - Funkcionalitás: show parancsok elérése ip cím megadással, egyszerűen -> Elérés tesztelés is egyben
+- Központi eszközök konfigurációs fájljai elkezdve
+- Windows server elkezdve
