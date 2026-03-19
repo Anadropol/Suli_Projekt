@@ -28,6 +28,7 @@
 		- HR **11**
 		- Sales **22**
 		- Marketing **33**
+  		- WLAN **60**
         - Management **88**
 		- Blackhole **101**
 	- A központi *Linux szerver*hez a hozzáférést *ACL* szabályozza.
