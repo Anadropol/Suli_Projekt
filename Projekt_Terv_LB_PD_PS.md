@@ -36,8 +36,8 @@
  	- Az üzletben a bankkártyás fizetés elérése érdekében *WI-FI* hálózat működik.
 	- Az üzleti hálózat automatikus konfigurációval rendelkezik.
 	- Az üzletben található *VLAN*-ok:
-		- Guest
-		- Desktop
+		- Guest **10**
+		- Desktop **20**
 	- Az ISP felé történő kommunikációhoz PAT-ot alkalmazunk.
 
 **Windows Szerveren futó szolgáltatások**
