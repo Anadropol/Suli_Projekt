@@ -8,19 +8,32 @@ SSH_CONFIG_COMMANDS = [
     "conf t",
     "hostname [hostname]",
     "ip domain-name guugl.com",
-    "crypto key generate rsa modulus 1024",
+    "crypto key generate rsa general-keys modulus 1024",
     "ip ssh version 2",
     "username admin privilege 15 password 0 cisco",
     "enable password cisco",
     "line vty 0 4",
     "transport input ssh",
     "login local",
-    "exit",
-    "interface GigabitEthernet0/0",
-    "ip address 192.168.1.1 255.255.255.0",
-    "no shutdown",
     "exit"
 ]
+
+def send_and_check(ser, command):
+    ser.write((command + '\r\n').encode())
+    time.sleep(0.5)
+    
+    output = ""
+    if ser.in_waiting > 0:
+        output = ser.read(ser.in_waiting).decode('utf-8', errors='ignore')
+        
+    error_keywords = ["% invalid input", "% incomplete", "% ambiguous", "% bad", "% error"]
+    
+    for error in error_keywords:
+        if error in output.lower():
+            raise RuntimeError(f"Hiba a(z) '{command}' parancs kiadásakor!\nEszköz válasza:\n{output.strip()}")
+            
+    print(f'Elküldött parancs: {command}')
+    return output
 
 def configure_ssh(port):
     try:
@@ -41,6 +54,9 @@ def configure_ssh(port):
             
             ser.write(b'\r\n')
             time.sleep(1)
+            
+            if ser.in_waiting > 0:
+                ser.read(ser.in_waiting)
         else:
             print("Nincs initial config dialog. Folytatás a konfigurálással...")
 
@@ -53,10 +69,7 @@ def configure_ssh(port):
                 current_hostname = input('Add meg az eszköz hostname-jét: ').strip()
                 command = command.replace('[hostname]', current_hostname)
             
-            ser.write((command + '\r\n').encode())
-            print(f'Elküldött parancs: {command}')
-            
-            time.sleep(0.5)
+            send_and_check(ser, command)
         
         if current_hostname:
             config_file = f"configs/{current_hostname}.conf"
@@ -66,9 +79,7 @@ def configure_ssh(port):
                     for line in f:
                         cmd = line.strip()
                         if cmd and not cmd.startswith('#'):
-                            ser.write((cmd + '\r\n').encode())
-                            print(f'Elküldött parancs: {cmd}')
-                            time.sleep(0.5)
+                            send_and_check(ser, cmd)
             else:
                 print(f"\nFigyelmeztetés: A(z) {config_file} nem található, további parancsok kihagyva.")
 
@@ -76,17 +87,24 @@ def configure_ssh(port):
         ser.close()
         
     except Exception as e:
-        print(f'Hiba történt a(z) {port} porthoz való csatlakozáskor: {e}')
+        print(f'\n[!] VÉGREHAJTÁSI HIBA: {e}')
+        print('A konfiguráció megszakadt.')
+        if 'ser' in locals() and ser.is_open:
+            ser.close()
 
 while True:
     ports = serial.tools.list_ports.comports()
     if len(ports) > 0:
-        print('Soros portok találhatók!')
+        print('\nSoros portok találhatók!')
 
         for port in ports:
             print(f'{port.device}: {port.description}')
         
-        selected_port = input('Add meg a csatlakozni kívánt soros portot: ')
+        selected_port = input('Add meg a csatlakozni kívánt soros portot (vagy "q" a kilépéshez): ')
+        
+        if selected_port.lower() == 'q':
+            break
+            
         if selected_port in [port.device for port in ports]:
             print(f'Csatlakozás a(z) {selected_port} porthoz...')
             configure_ssh(selected_port)
