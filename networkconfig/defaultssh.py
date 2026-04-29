@@ -4,8 +4,6 @@ import serial
 import serial.tools.list_ports
 
 SSH_CONFIG_COMMANDS = [
-    "enable",
-    "conf t",
     "hostname [hostname]",
     "ip domain-name guugl.com",
     "crypto key generate rsa general-keys modulus 1024",
@@ -58,7 +56,28 @@ def configure_ssh(port):
             if ser.in_waiting > 0:
                 ser.read(ser.in_waiting)
         else:
-            print("Nincs initial config dialog. Folytatás a konfigurálással...")
+            print("Nincs initial config dialog. Folytatás...")
+
+        ser.write(b'\r\n\r\n')
+        time.sleep(1)
+        prompt_output = ser.read(ser.in_waiting or 1000).decode('utf-8', errors='ignore').strip()
+        
+        current_prompt = prompt_output.split('\n')[-1].strip() if prompt_output else ""
+        print(f"Észlelt prompt: {current_prompt}")
+
+        if '(config' in current_prompt:
+            print("Már konfigurációs módban vagyunk.")
+        elif current_prompt.endswith('#'):
+            print("Privileged EXEC mód észlelve. Belépés Config módba...")
+            send_and_check(ser, "conf t")
+        elif current_prompt.endswith('>'):
+            print("User EXEC mód észlelve. Belépés Privileged EXEC, majd Config módba...")
+            send_and_check(ser, "enable")
+            send_and_check(ser, "conf t")
+        else:
+            print("Ismeretlen prompt állapot. Kísérlet a belépésre...")
+            send_and_check(ser, "enable")
+            send_and_check(ser, "conf t")
 
         print("Konfiguráció indítása...")
         
@@ -75,10 +94,17 @@ def configure_ssh(port):
             config_file = f"configs/{current_hostname}.conf"
             if os.path.isfile(config_file):
                 print(f"\nTovábbi konfiguráció betöltése innen: {config_file}...")
+                
+                # Felesleges parancsok kiszűrése a külső fájlból
+                ignore_commands = ['enable', 'conf t', 'configure terminal']
+                
                 with open(config_file, 'r') as f:
                     for line in f:
                         cmd = line.strip()
                         if cmd and not cmd.startswith('#'):
+                            if cmd.lower() in ignore_commands:
+                                print(f"[*] Felesleges parancs kihagyva a .conf fájlból: {cmd}")
+                                continue
                             send_and_check(ser, cmd)
             else:
                 print(f"\nFigyelmeztetés: A(z) {config_file} nem található, további parancsok kihagyva.")
