@@ -16,7 +16,14 @@ SSH_CONFIG_COMMANDS = [
     "exit"
 ]
 
+import time
+
 def send_and_check(ser, command):
+    if command.strip() == "[sleep]":
+        print("Várakozás 15 másodpercig...")
+        time.sleep(15)
+        return "Slept for 15 seconds"
+
     ser.write((command + '\r\n').encode())
     time.sleep(0.5)
     
@@ -95,7 +102,6 @@ def configure_ssh(port):
             if os.path.isfile(config_file):
                 print(f"\nTovábbi konfiguráció betöltése innen: {config_file}...")
                 
-                # Felesleges parancsok kiszűrése a külső fájlból
                 ignore_commands = ['enable', 'conf t', 'configure terminal']
                 
                 with open(config_file, 'r') as f:
